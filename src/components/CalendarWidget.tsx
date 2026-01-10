@@ -1,28 +1,25 @@
-import { useState } from 'react';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek, isToday, isSameMonth } from 'date-fns';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek, isToday, isSameMonth, parseISO } from 'date-fns';
+import { ChevronLeft, ChevronRight, Loader2, LogIn } from 'lucide-react';
+import { useGoogleCalendar, CalendarEvent } from '@/hooks/useGoogleCalendar';
 
-interface CalendarEvent {
-  id: string;
-  title: string;
-  date: Date;
-  color: string;
+interface CalendarWidgetProps {
+  isAuthenticated: boolean;
+  onSignIn: () => void;
 }
 
-const CalendarWidget = () => {
+const eventColors = [
+  'bg-primary',
+  'bg-accent',
+  'bg-emerald-500',
+  'bg-amber-500',
+  'bg-rose-500',
+  'bg-violet-500',
+];
+
+const CalendarWidget = ({ isAuthenticated, onSignIn }: CalendarWidgetProps) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  
-  // Mock events - in production, these would come from Google Calendar
-  const events: CalendarEvent[] = [
-    { id: '1', title: 'Team Meeting', date: new Date(2026, 0, 10, 10, 0), color: 'bg-primary' },
-    { id: '2', title: 'Project Review', date: new Date(2026, 0, 10, 14, 0), color: 'bg-accent' },
-    { id: '3', title: 'Client Call', date: new Date(2026, 0, 12, 11, 0), color: 'bg-primary' },
-    { id: '4', title: 'Lunch with Sarah', date: new Date(2026, 0, 15, 12, 30), color: 'bg-accent' },
-    { id: '5', title: 'Sprint Planning', date: new Date(2026, 0, 17, 9, 0), color: 'bg-primary' },
-    { id: '6', title: 'Design Review', date: new Date(2026, 0, 20, 15, 0), color: 'bg-accent' },
-    { id: '7', title: 'Team Offsite', date: new Date(2026, 0, 22, 9, 0), color: 'bg-primary' },
-    { id: '8', title: 'Quarterly Review', date: new Date(2026, 0, 28, 10, 0), color: 'bg-accent' },
-  ];
+  const { events, loading, error, needsAuth } = useGoogleCalendar(currentMonth, isAuthenticated);
 
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
@@ -32,8 +29,29 @@ const CalendarWidget = () => {
   const days = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
   const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
+  const eventsMap = useMemo(() => {
+    const map = new Map<string, CalendarEvent[]>();
+    events.forEach(event => {
+      const dateKey = event.start.split('T')[0];
+      if (!map.has(dateKey)) {
+        map.set(dateKey, []);
+      }
+      map.get(dateKey)!.push(event);
+    });
+    return map;
+  }, [events]);
+
   const getEventsForDay = (day: Date) => {
-    return events.filter(event => isSameDay(event.date, day));
+    const dateKey = format(day, 'yyyy-MM-dd');
+    return eventsMap.get(dateKey) || [];
+  };
+
+  const getEventColor = (event: CalendarEvent, index: number) => {
+    if (event.colorId) {
+      const colorIndex = parseInt(event.colorId) % eventColors.length;
+      return eventColors[colorIndex];
+    }
+    return eventColors[index % eventColors.length];
   };
 
   const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
@@ -43,10 +61,22 @@ const CalendarWidget = () => {
     <div className="glass-card p-6 animate-fade-in h-full flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-semibold text-foreground">
-          {format(currentMonth, 'MMMM yyyy')}
-        </h2>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-4">
+          <h2 className="text-2xl font-semibold text-foreground">
+            {format(currentMonth, 'MMMM yyyy')}
+          </h2>
+          {loading && <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />}
+        </div>
+        <div className="flex items-center gap-2">
+          {!isAuthenticated && (
+            <button
+              onClick={onSignIn}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors mr-4"
+            >
+              <LogIn className="w-4 h-4" />
+              <span>Sign in with Google</span>
+            </button>
+          )}
           <button
             onClick={prevMonth}
             className="p-2 rounded-lg hover:bg-secondary transition-colors"
@@ -61,6 +91,21 @@ const CalendarWidget = () => {
           </button>
         </div>
       </div>
+
+      {/* Error/Auth message */}
+      {error && (
+        <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
+          {error}
+          {needsAuth && (
+            <button
+              onClick={onSignIn}
+              className="ml-2 underline hover:no-underline"
+            >
+              Sign in again
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Week day headers */}
       <div className="grid grid-cols-7 mb-2">
@@ -91,11 +136,11 @@ const CalendarWidget = () => {
               </span>
               
               <div className="flex-1 w-full overflow-hidden">
-                {dayEvents.slice(0, 3).map(event => (
+                {dayEvents.slice(0, 3).map((event, eventIndex) => (
                   <div
                     key={event.id}
-                    className={`calendar-event ${event.color} text-primary-foreground`}
-                    title={`${format(event.date, 'h:mm a')} - ${event.title}`}
+                    className={`calendar-event ${getEventColor(event, eventIndex)} text-primary-foreground`}
+                    title={`${event.start.includes('T') ? format(parseISO(event.start), 'h:mm a') : 'All day'} - ${event.title}`}
                   >
                     {event.title}
                   </div>
