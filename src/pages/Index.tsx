@@ -6,7 +6,7 @@ import CalendarWidget from '@/components/CalendarWidget';
 import { LogOut, User } from 'lucide-react';
 
 const Index = () => {
-  const { user, loading, signInWithGoogle, signOut } = useGoogleAuth();
+  const { user, session, loading, signInWithGoogle, signOut } = useGoogleAuth();
 
   return (
     <div className="w-screen h-screen bg-background p-6 overflow-hidden">
@@ -42,6 +42,7 @@ const Index = () => {
           <CalendarWidget 
             isAuthenticated={!!user} 
             onSignIn={signInWithGoogle}
+            providerToken={session?.provider_token}
           />
         </div>
       </div>

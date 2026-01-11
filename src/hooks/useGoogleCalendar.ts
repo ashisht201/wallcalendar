@@ -12,15 +12,19 @@ export interface CalendarEvent {
   colorId?: string;
 }
 
-export const useGoogleCalendar = (currentMonth: Date, isAuthenticated: boolean) => {
+export const useGoogleCalendar = (currentMonth: Date, isAuthenticated: boolean, providerToken?: string | null) => {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [needsAuth, setNeedsAuth] = useState(false);
 
   const fetchEvents = useCallback(async () => {
-    if (!isAuthenticated) {
+    if (!isAuthenticated || !providerToken) {
       setEvents([]);
+      if (isAuthenticated && !providerToken) {
+        setNeedsAuth(true);
+        setError('No Google access token available. Please sign in again.');
+      }
       return;
     }
 
@@ -34,7 +38,7 @@ export const useGoogleCalendar = (currentMonth: Date, isAuthenticated: boolean) 
       const timeMax = endOfMonth(addMonths(currentMonth, 1)).toISOString();
 
       const { data, error: fnError } = await supabase.functions.invoke('google-calendar', {
-        body: { timeMin, timeMax },
+        body: { timeMin, timeMax, providerToken },
       });
 
       if (fnError) {
@@ -59,7 +63,7 @@ export const useGoogleCalendar = (currentMonth: Date, isAuthenticated: boolean) 
     } finally {
       setLoading(false);
     }
-  }, [currentMonth, isAuthenticated]);
+  }, [currentMonth, isAuthenticated, providerToken]);
 
   useEffect(() => {
     fetchEvents();
