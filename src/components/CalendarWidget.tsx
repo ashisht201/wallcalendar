@@ -6,6 +6,7 @@ import { useGoogleCalendar, CalendarEvent } from '@/hooks/useGoogleCalendar';
 interface CalendarWidgetProps {
   isAuthenticated: boolean;
   onSignIn: () => void;
+  providerToken?: string | null;
 }
 
 const eventColors = [
@@ -17,9 +18,9 @@ const eventColors = [
   'bg-violet-500',
 ];
 
-const CalendarWidget = ({ isAuthenticated, onSignIn }: CalendarWidgetProps) => {
+const CalendarWidget = ({ isAuthenticated, onSignIn, providerToken }: CalendarWidgetProps) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const { events, loading, error, needsAuth } = useGoogleCalendar(currentMonth, isAuthenticated);
+  const { events, loading, error, needsAuth } = useGoogleCalendar(currentMonth, isAuthenticated, providerToken);
 
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);

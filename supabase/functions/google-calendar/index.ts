@@ -51,20 +51,18 @@ serve(async (req) => {
       );
     }
 
-    // Get the session to access the provider token
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-    if (sessionError || !session?.provider_token) {
-      console.error('Session error:', sessionError);
+    // Parse request body for date range and provider token
+    const body = await req.json().catch(() => ({}));
+    const accessToken = body.providerToken;
+    
+    if (!accessToken) {
+      console.error('No provider token in request body');
       return new Response(
         JSON.stringify({ error: 'No Google access token available. Please sign in again.', needsAuth: true }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-
-    const accessToken = session.provider_token;
-
-    // Parse request body for date range
-    const body = await req.json().catch(() => ({}));
+    
     const timeMin = body.timeMin || new Date().toISOString();
     const timeMax = body.timeMax || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
 
