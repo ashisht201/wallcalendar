@@ -18,13 +18,13 @@ const WeatherWidget = () => {
   useEffect(() => {
     // Simulate weather data - in production, this would call a weather API
     const mockWeather: WeatherData = {
-      temp: 72,
+      temp: 86,
       condition: 'Partly Cloudy',
-      humidity: 45,
-      windSpeed: 8,
-      location: 'San Francisco',
-      high: 76,
-      low: 58,
+      humidity: 65,
+      windSpeed: 12,
+      location: 'Mumbai, India',
+      high: 91,
+      low: 79,
     };
     
     setTimeout(() => {
