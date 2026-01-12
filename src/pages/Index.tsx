@@ -2,6 +2,7 @@ import { useGoogleAuth } from '@/hooks/useGoogleAuth';
 import ClockWidget from '@/components/ClockWidget';
 import WeatherWidget from '@/components/WeatherWidget';
 import TideWidget from '@/components/TideWidget';
+import TodayEventsWidget from '@/components/TodayEventsWidget';
 import TodoWidget from '@/components/TodoWidget';
 import CalendarWidget from '@/components/CalendarWidget';
 import { LogOut, User } from 'lucide-react';
@@ -34,16 +35,11 @@ const Index = () => {
         {/* Widgets - shown below on mobile, left sidebar on desktop */}
         <div className="order-2 lg:order-1 flex flex-col gap-4 md:gap-6">
           {/* On mobile: horizontal scroll for small widgets */}
-          <div className="flex lg:flex-col gap-4 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0">
-            <div className="flex-shrink-0 w-[280px] lg:w-auto">
-              <ClockWidget />
-            </div>
-            <div className="flex-shrink-0 w-[280px] lg:w-auto">
-              <WeatherWidget />
-            </div>
-            <div className="flex-shrink-0 w-[280px] lg:w-auto">
-              <TideWidget />
-            </div>
+          <div className="grid grid-cols-2 lg:grid-cols-1 gap-3 lg:gap-4">
+            <ClockWidget />
+            <WeatherWidget />
+            <TideWidget />
+            <TodayEventsWidget />
           </div>
           <div className="flex-1 min-h-[300px] lg:min-h-0">
             <TodoWidget />
