@@ -1,6 +1,7 @@
 import { useGoogleAuth } from '@/hooks/useGoogleAuth';
 import ClockWidget from '@/components/ClockWidget';
 import WeatherWidget from '@/components/WeatherWidget';
+import TideWidget from '@/components/TideWidget';
 import TodoWidget from '@/components/TodoWidget';
 import CalendarWidget from '@/components/CalendarWidget';
 import { LogOut, User } from 'lucide-react';
@@ -32,6 +33,7 @@ const Index = () => {
         <div className="flex flex-col gap-6">
           <ClockWidget />
           <WeatherWidget />
+          <TideWidget />
           <div className="flex-1 min-h-0">
             <TodoWidget />
           </div>
