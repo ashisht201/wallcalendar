@@ -10,15 +10,16 @@ const ClockWidget = () => {
   }, []);
 
   return (
-    <div className="glass-card p-6 animate-fade-in">
-      <div className="time-display text-5xl font-light text-primary mb-2">
-        {format(time, 'HH:mm')}
-        <span className="text-2xl text-primary/60">{format(time, ':ss')}</span>
+    <div className="glass-card p-4 animate-fade-in h-[100px] flex flex-col justify-center">
+      <div className="flex items-baseline gap-2">
+        <div className="time-display text-3xl font-light text-primary">
+          {format(time, 'HH:mm')}
+        </div>
+        <div className="text-sm text-muted-foreground">
+          {format(time, 'EEEE')}
+        </div>
       </div>
-      <div className="text-lg text-muted-foreground">
-        {format(time, 'EEEE')}
-      </div>
-      <div className="text-2xl font-medium text-foreground">
+      <div className="text-base font-medium text-foreground">
         {format(time, 'MMMM d, yyyy')}
       </div>
     </div>

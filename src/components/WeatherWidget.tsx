@@ -37,24 +37,26 @@ const WeatherWidget = () => {
     switch (condition.toLowerCase()) {
       case 'sunny':
       case 'clear':
-        return <Sun className="w-16 h-16 text-primary weather-icon" />;
+        return <Sun className="w-10 h-10 text-primary weather-icon" />;
       case 'rainy':
       case 'rain':
-        return <CloudRain className="w-16 h-16 text-accent weather-icon" />;
+        return <CloudRain className="w-10 h-10 text-accent weather-icon" />;
       case 'snowy':
       case 'snow':
-        return <CloudSnow className="w-16 h-16 text-accent weather-icon" />;
+        return <CloudSnow className="w-10 h-10 text-accent weather-icon" />;
       default:
-        return <Cloud className="w-16 h-16 text-accent weather-icon" />;
+        return <Cloud className="w-10 h-10 text-accent weather-icon" />;
     }
   };
 
   if (loading) {
     return (
-      <div className="glass-card p-6 animate-pulse">
-        <div className="h-16 w-16 bg-secondary rounded-full mb-4" />
-        <div className="h-8 w-24 bg-secondary rounded mb-2" />
-        <div className="h-4 w-32 bg-secondary rounded" />
+      <div className="glass-card p-4 h-[100px] animate-pulse flex items-center gap-4">
+        <div className="h-10 w-10 bg-secondary rounded-full" />
+        <div className="flex-1">
+          <div className="h-6 w-16 bg-secondary rounded mb-1" />
+          <div className="h-3 w-24 bg-secondary rounded" />
+        </div>
       </div>
     );
   }
@@ -62,34 +64,25 @@ const WeatherWidget = () => {
   if (!weather) return null;
 
   return (
-    <div className="glass-card p-6 animate-fade-in">
-      <div className="flex items-start justify-between mb-4">
+    <div className="glass-card p-4 animate-fade-in h-[100px]">
+      <div className="flex items-center gap-4 h-full">
         {getWeatherIcon(weather.condition)}
-        <div className="text-right">
-          <div className="text-5xl font-light text-foreground">
-            {weather.temp}°
+        <div className="flex-1">
+          <div className="flex items-baseline gap-2">
+            <span className="text-3xl font-light text-foreground">{weather.temp}°</span>
+            <span className="text-xs text-muted-foreground">H:{weather.high}° L:{weather.low}°</span>
           </div>
-          <div className="text-sm text-muted-foreground">
-            H: {weather.high}° L: {weather.low}°
+          <div className="text-sm text-muted-foreground">{weather.condition} · {weather.location}</div>
+        </div>
+        <div className="text-xs text-muted-foreground space-y-1">
+          <div className="flex items-center gap-1">
+            <Droplets className="w-3 h-3" />
+            {weather.humidity}%
           </div>
-        </div>
-      </div>
-      
-      <div className="text-lg font-medium text-foreground mb-1">
-        {weather.condition}
-      </div>
-      <div className="text-sm text-muted-foreground mb-4">
-        {weather.location}
-      </div>
-      
-      <div className="flex gap-4 text-sm text-muted-foreground">
-        <div className="flex items-center gap-1">
-          <Droplets className="w-4 h-4" />
-          {weather.humidity}%
-        </div>
-        <div className="flex items-center gap-1">
-          <Wind className="w-4 h-4" />
-          {weather.windSpeed} mph
+          <div className="flex items-center gap-1">
+            <Wind className="w-3 h-3" />
+            {weather.windSpeed} km/h
+          </div>
         </div>
       </div>
     </div>

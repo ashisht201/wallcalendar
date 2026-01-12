@@ -17,16 +17,16 @@ const TideWidget = () => {
   const highTides = tides.filter(t => t.type === 'high');
 
   return (
-    <div className="glass-card p-4 animate-fade-in">
-      <div className="flex items-center gap-2 mb-3">
-        <Waves className="w-5 h-5 text-primary" />
-        <span className="text-sm font-medium text-foreground">High Tides Today</span>
+    <div className="glass-card p-4 animate-fade-in h-[100px] flex flex-col justify-center">
+      <div className="flex items-center gap-2 mb-2">
+        <Waves className="w-4 h-4 text-primary" />
+        <span className="text-sm font-medium text-foreground">High Tides</span>
       </div>
       
-      <div className="flex gap-4">
+      <div className="flex gap-6">
         {highTides.map((tide, index) => (
-          <div key={index} className="flex-1 text-center">
-            <div className="text-lg font-semibold text-foreground">{tide.time}</div>
+          <div key={index} className="text-center">
+            <div className="text-base font-semibold text-foreground">{tide.time}</div>
             <div className="text-xs text-muted-foreground">{tide.height}</div>
           </div>
         ))}
