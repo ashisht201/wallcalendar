@@ -34,10 +34,9 @@ export const useGoogleAuth = () => {
       provider: 'google',
       options: {
         redirectTo: redirectUrl,
-        scopes: 'https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/tasks.readonly',
+        scopes: 'https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/tasks',
         queryParams: {
           access_type: 'offline',
-          prompt: 'consent',
         },
       },
     });
