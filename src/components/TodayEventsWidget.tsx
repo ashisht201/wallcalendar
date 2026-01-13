@@ -1,5 +1,6 @@
 import { CalendarClock } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, isToday, parseISO } from 'date-fns';
+import { CalendarEvent } from '@/hooks/useGoogleCalendar';
 
 interface TodayEvent {
   time: string;
@@ -7,37 +8,30 @@ interface TodayEvent {
 }
 
 interface TodayEventsWidgetProps {
-  events?: Array<{
-    id: string;
-    summary: string;
-    start: { dateTime?: string; date?: string };
-  }>;
+  events?: CalendarEvent[];
   loading?: boolean;
 }
 
 const TodayEventsWidget = ({ events = [], loading = false }: TodayEventsWidgetProps) => {
-  const today = new Date();
-  
   // Filter events for today and format them
   const todayEvents: TodayEvent[] = events
     .filter(event => {
-      const eventDate = new Date(event.start.dateTime || event.start.date || '');
-      return eventDate.toDateString() === today.toDateString();
+      try {
+        const eventDate = parseISO(event.start);
+        return isToday(eventDate);
+      } catch {
+        return false;
+      }
     })
+    .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
     .slice(0, 3) // Show max 3 events
     .map(event => ({
-      time: event.start.dateTime 
-        ? format(new Date(event.start.dateTime), 'h:mm a')
-        : 'All day',
-      name: event.summary || 'Untitled',
+      time: format(parseISO(event.start), 'h:mm a'),
+      name: event.title || 'Untitled',
     }));
 
-  // Mock data if no real events
-  const displayEvents = todayEvents.length > 0 ? todayEvents : [
-    { time: '9:00 AM', name: 'Team standup' },
-    { time: '2:00 PM', name: 'Project review' },
-    { time: '5:30 PM', name: 'Gym session' },
-  ];
+  // Show placeholder message when no events
+  const hasEvents = todayEvents.length > 0;
 
   if (loading) {
     return (
@@ -59,12 +53,16 @@ const TodayEventsWidget = ({ events = [], loading = false }: TodayEventsWidgetPr
       </div>
       
       <div className="flex-1 overflow-hidden space-y-1">
-        {displayEvents.map((event, index) => (
-          <div key={index} className="flex items-center gap-2 text-xs">
-            <span className="text-muted-foreground w-16 flex-shrink-0">{event.time}</span>
-            <span className="text-foreground truncate">{event.name}</span>
-          </div>
-        ))}
+        {hasEvents ? (
+          todayEvents.map((event, index) => (
+            <div key={index} className="flex items-center gap-2 text-xs">
+              <span className="text-muted-foreground w-16 flex-shrink-0">{event.time}</span>
+              <span className="text-foreground truncate">{event.name}</span>
+            </div>
+          ))
+        ) : (
+          <p className="text-xs text-muted-foreground">No events scheduled</p>
+        )}
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 import { useGoogleAuth } from '@/hooks/useGoogleAuth';
+import { useGoogleCalendar } from '@/hooks/useGoogleCalendar';
 import ClockWidget from '@/components/ClockWidget';
 import WeatherWidget from '@/components/WeatherWidget';
 import TideWidget from '@/components/TideWidget';
@@ -9,6 +10,11 @@ import { LogOut, User } from 'lucide-react';
 
 const Index = () => {
   const { user, session, loading, signInWithGoogle, signOut } = useGoogleAuth();
+  const { events, loading: eventsLoading } = useGoogleCalendar(
+    new Date(),
+    !!user,
+    session?.provider_token
+  );
 
   return (
     <div className="w-screen min-h-screen bg-background p-4 md:p-6 overflow-auto md:overflow-hidden">
@@ -39,7 +45,7 @@ const Index = () => {
             <ClockWidget />
             <WeatherWidget />
             <TideWidget />
-            <TodayEventsWidget />
+            <TodayEventsWidget events={events} loading={eventsLoading} />
           </div>
           <div className="flex-1 min-h-[300px] lg:min-h-0">
             <TodoWidget />
