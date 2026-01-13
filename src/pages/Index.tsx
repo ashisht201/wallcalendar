@@ -48,7 +48,10 @@ const Index = () => {
             <TodayEventsWidget events={events} loading={eventsLoading} />
           </div>
           <div className="flex-1 min-h-[300px] lg:min-h-0">
-            <TodoWidget />
+            <TodoWidget 
+              isAuthenticated={!!user} 
+              providerToken={session?.provider_token}
+            />
           </div>
         </div>
         

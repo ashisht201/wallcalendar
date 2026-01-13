@@ -2,3 +2,6 @@ project_id = "ufmwpxicqccmjltpxewc"
 
 [functions.google-calendar]
 verify_jwt = false
+
+[functions.google-tasks]
+verify_jwt = false
