@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -13,45 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    // Get the authorization header
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      return new Response(
-        JSON.stringify({ error: 'Missing authorization header' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Create Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey, {
-      global: { headers: { Authorization: authHeader } }
-    });
-
-    // Get user session
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    if (userError || !user) {
-      console.error('Auth error:', userError);
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Get the user's Google OAuth token from identities
-    const googleIdentity = user.identities?.find(
-      (identity) => identity.provider === 'google'
-    );
-
-    if (!googleIdentity) {
-      return new Response(
-        JSON.stringify({ error: 'No Google account linked', needsAuth: true }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Parse request body for date range and provider token
+    // Parse request body for provider token and date range
     const body = await req.json().catch(() => ({}));
     const accessToken = body.providerToken;
     
@@ -111,7 +72,7 @@ serve(async (req) => {
       colorId: event.colorId,
     }));
 
-    console.log(`Fetched ${events.length} events for user ${user.id}`);
+    console.log(`Fetched ${events.length} calendar events`);
 
     return new Response(
       JSON.stringify({ events }),
