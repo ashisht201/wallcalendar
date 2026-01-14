@@ -1,12 +1,18 @@
-import { useState, useMemo } from 'react';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek, isToday, isSameMonth, parseISO } from 'date-fns';
+import { useMemo } from 'react';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, subMonths, startOfWeek, endOfWeek, isToday, isSameMonth, parseISO } from 'date-fns';
 import { ChevronLeft, ChevronRight, Loader2, LogIn } from 'lucide-react';
-import { useGoogleCalendar, CalendarEvent } from '@/hooks/useGoogleCalendar';
+import { CalendarEvent } from '@/hooks/useGoogleCalendar';
 
 interface CalendarWidgetProps {
   isAuthenticated: boolean;
   onSignIn: () => void;
   providerToken?: string | null;
+  currentMonth: Date;
+  onMonthChange: (date: Date) => void;
+  events: CalendarEvent[];
+  loading: boolean;
+  error: string | null;
+  needsAuth: boolean;
 }
 
 const eventColors = [
@@ -18,10 +24,16 @@ const eventColors = [
   'bg-violet-500',
 ];
 
-const CalendarWidget = ({ isAuthenticated, onSignIn, providerToken }: CalendarWidgetProps) => {
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-  const { events, loading, error, needsAuth } = useGoogleCalendar(currentMonth, isAuthenticated, providerToken);
-
+const CalendarWidget = ({ 
+  isAuthenticated, 
+  onSignIn, 
+  currentMonth,
+  onMonthChange,
+  events,
+  loading,
+  error,
+  needsAuth 
+}: CalendarWidgetProps) => {
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
   const calendarStart = startOfWeek(monthStart);
@@ -55,8 +67,8 @@ const CalendarWidget = ({ isAuthenticated, onSignIn, providerToken }: CalendarWi
     return eventColors[index % eventColors.length];
   };
 
-  const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
-  const prevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
+  const nextMonth = () => onMonthChange(addMonths(currentMonth, 1));
+  const prevMonth = () => onMonthChange(subMonths(currentMonth, 1));
 
   return (
     <div className="glass-card p-6 animate-fade-in h-full flex flex-col">

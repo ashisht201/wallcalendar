@@ -1,3 +1,4 @@
+import { useState, useMemo } from 'react';
 import { useGoogleAuth } from '@/hooks/useGoogleAuth';
 import { useGoogleCalendar } from '@/hooks/useGoogleCalendar';
 import ClockWidget from '@/components/ClockWidget';
@@ -10,8 +11,11 @@ import { LogOut, User } from 'lucide-react';
 
 const Index = () => {
   const { user, session, loading, signInWithGoogle, signOut } = useGoogleAuth();
-  const { events, loading: eventsLoading } = useGoogleCalendar(
-    new Date(),
+  const [currentMonth, setCurrentMonth] = useState(() => new Date());
+  
+  // Single calendar hook instance - shared between CalendarWidget and TodayEventsWidget
+  const { events, loading: eventsLoading, error, needsAuth, refetch } = useGoogleCalendar(
+    currentMonth,
     !!user,
     session?.provider_token
   );
@@ -61,6 +65,12 @@ const Index = () => {
             isAuthenticated={!!user} 
             onSignIn={signInWithGoogle}
             providerToken={session?.provider_token}
+            currentMonth={currentMonth}
+            onMonthChange={setCurrentMonth}
+            events={events}
+            loading={eventsLoading}
+            error={error}
+            needsAuth={needsAuth}
           />
         </div>
       </div>
