@@ -5,3 +5,9 @@ verify_jwt = false
 
 [functions.google-tasks]
 verify_jwt = false
+
+[functions.display-calendar]
+verify_jwt = false
+
+[functions.store-refresh-token]
+verify_jwt = false
