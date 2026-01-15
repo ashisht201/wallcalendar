@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useGoogleAuth } from '@/hooks/useGoogleAuth';
 import { useGoogleCalendar } from '@/hooks/useGoogleCalendar';
 import ClockWidget from '@/components/ClockWidget';
@@ -7,7 +7,9 @@ import TideWidget from '@/components/TideWidget';
 import TodayEventsWidget from '@/components/TodayEventsWidget';
 import TodoWidget from '@/components/TodoWidget';
 import CalendarWidget from '@/components/CalendarWidget';
+import DisplaySessionManager from '@/components/DisplaySessionManager';
 import { LogOut, User } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 const Index = () => {
   const { user, session, loading, signInWithGoogle, signOut } = useGoogleAuth();
@@ -20,11 +22,30 @@ const Index = () => {
     session?.provider_token
   );
 
+  // Store refresh token when user signs in with Google
+  useEffect(() => {
+    const storeRefreshToken = async () => {
+      if (session?.provider_refresh_token && user) {
+        try {
+          await supabase.functions.invoke('store-refresh-token', {
+            body: { refreshToken: session.provider_refresh_token },
+          });
+          console.log('Refresh token stored successfully');
+        } catch (err) {
+          console.error('Failed to store refresh token:', err);
+        }
+      }
+    };
+    
+    storeRefreshToken();
+  }, [session?.provider_refresh_token, user]);
+
   return (
     <div className="w-screen min-h-screen bg-background p-4 md:p-6 overflow-auto md:overflow-hidden">
       {/* User info bar */}
       {user && (
         <div className="absolute top-4 right-4 flex items-center gap-3 z-10">
+          <DisplaySessionManager userId={user.id} />
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary/50 text-sm">
             <User className="w-4 h-4 text-muted-foreground" />
             <span className="text-foreground hidden sm:inline">{user.email}</span>

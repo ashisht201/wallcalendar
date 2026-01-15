@@ -14,7 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      display_sessions: {
+        Row: {
+          access_code: string
+          created_at: string
+          id: string
+          is_active: boolean
+          last_accessed_at: string | null
+          name: string | null
+          user_id: string
+        }
+        Insert: {
+          access_code: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          last_accessed_at?: string | null
+          name?: string | null
+          user_id: string
+        }
+        Update: {
+          access_code?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          last_accessed_at?: string | null
+          name?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      google_tokens: {
+        Row: {
+          created_at: string
+          id: string
+          refresh_token: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          refresh_token: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          refresh_token?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
