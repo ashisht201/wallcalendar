@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Monitor, Plus, Trash2, XCircle, Copy, Check } from 'lucide-react';
+import { Monitor, Plus, Trash2, XCircle, Copy, Check, RefreshCw } from 'lucide-react';
 import { useDisplaySessions, DisplaySession } from '@/hooks/useDisplaySessions';
+import { useGoogleAuth } from '@/hooks/useGoogleAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -19,10 +20,22 @@ interface DisplaySessionManagerProps {
 
 const DisplaySessionManager = ({ userId }: DisplaySessionManagerProps) => {
   const { sessions, loading, createSession, revokeSession, deleteSession } = useDisplaySessions(userId);
+  const { signInWithGoogle } = useGoogleAuth();
   const [newDisplayName, setNewDisplayName] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [isRelinking, setIsRelinking] = useState(false);
+
+  const handleRelinkGoogle = async () => {
+    setIsRelinking(true);
+    try {
+      await signInWithGoogle(true); // Force consent to get new refresh token
+    } catch (err) {
+      console.error('Failed to re-link Google account:', err);
+      setIsRelinking(false);
+    }
+  };
 
   const handleCreateSession = async () => {
     setIsCreating(true);
@@ -129,6 +142,23 @@ const DisplaySessionManager = ({ userId }: DisplaySessionManagerProps) => {
               No displays configured yet. Create one to get started!
             </p>
           )}
+
+          {/* Re-link Google Account */}
+          <div className="border-t border-border pt-4">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleRelinkGoogle}
+              disabled={isRelinking}
+              className="w-full"
+            >
+              <RefreshCw className={`w-4 h-4 mr-2 ${isRelinking ? 'animate-spin' : ''}`} />
+              Re-link Google Account
+            </Button>
+            <p className="text-xs text-muted-foreground mt-2">
+              If display mode isn't working, click above to re-authorize your Google account.
+            </p>
+          </div>
 
           {/* Instructions */}
           <div className="text-xs text-muted-foreground border-t border-border pt-4">

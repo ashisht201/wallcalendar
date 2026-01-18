@@ -27,17 +27,24 @@ export const useGoogleAuth = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signInWithGoogle = async () => {
+  const signInWithGoogle = async (forceConsent = false) => {
     const redirectUrl = `${window.location.origin}/`;
+    
+    const queryParams: Record<string, string> = {
+      access_type: 'offline',
+    };
+    
+    // Force consent to get a new refresh token
+    if (forceConsent) {
+      queryParams.prompt = 'consent';
+    }
     
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: redirectUrl,
         scopes: 'https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/tasks',
-        queryParams: {
-          access_type: 'offline',
-        },
+        queryParams,
       },
     });
 
