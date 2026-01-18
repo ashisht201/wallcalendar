@@ -65,12 +65,20 @@ serve(async (req) => {
       .from('google_tokens')
       .select('refresh_token')
       .eq('user_id', displaySession.user_id)
-      .single();
+      .maybeSingle();
 
-    if (tokenError || !tokenData) {
+    if (tokenError) {
       console.error('Token lookup error:', tokenError);
       return new Response(
-        JSON.stringify({ error: 'No Google account linked. Please sign in on the primary device.' }),
+        JSON.stringify({ error: 'Failed to lookup token' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (!tokenData) {
+      console.error('No refresh token found for user:', displaySession.user_id);
+      return new Response(
+        JSON.stringify({ error: 'No Google account linked. Please sign out and sign in again on the primary device to enable display mode.' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
