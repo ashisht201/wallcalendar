@@ -25,14 +25,27 @@ const Index = () => {
   // Store refresh token when user signs in with Google
   useEffect(() => {
     const storeRefreshToken = async () => {
-      if (session?.provider_refresh_token && user) {
-        try {
-          await supabase.functions.invoke('store-refresh-token', {
-            body: { refreshToken: session.provider_refresh_token },
-          });
-          console.log('Refresh token stored successfully');
-        } catch (err) {
-          console.error('Failed to store refresh token:', err);
+      if (session && user) {
+        console.log('Session info:', {
+          hasProviderToken: !!session.provider_token,
+          hasProviderRefreshToken: !!session.provider_refresh_token,
+        });
+        
+        if (session.provider_refresh_token) {
+          try {
+            const { data, error } = await supabase.functions.invoke('store-refresh-token', {
+              body: { refreshToken: session.provider_refresh_token },
+            });
+            if (error) {
+              console.error('Failed to store refresh token:', error);
+            } else {
+              console.log('Refresh token stored successfully');
+            }
+          } catch (err) {
+            console.error('Failed to store refresh token:', err);
+          }
+        } else {
+          console.log('No provider_refresh_token in session - user may need to re-authenticate with offline access');
         }
       }
     };
