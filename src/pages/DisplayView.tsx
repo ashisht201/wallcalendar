@@ -3,11 +3,12 @@ import { useParams, Link } from 'react-router-dom';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, startOfWeek, endOfWeek, isToday, isSameMonth, parseISO, addMonths, subMonths } from 'date-fns';
 import { ChevronLeft, ChevronRight, Loader2, AlertCircle, ArrowLeft } from 'lucide-react';
 import { useDisplayCalendar } from '@/hooks/useDisplayCalendar';
+import { useDisplayTasks } from '@/hooks/useDisplayTasks';
 import ClockWidget from '@/components/ClockWidget';
 import WeatherWidget from '@/components/WeatherWidget';
 import TideWidget from '@/components/TideWidget';
 import TodayEventsWidget from '@/components/TodayEventsWidget';
-import TodoWidget from '@/components/TodoWidget';
+import DisplayTodoWidget from '@/components/DisplayTodoWidget';
 
 const eventColors = [
   'bg-blue-500',
@@ -23,6 +24,7 @@ const DisplayView = () => {
   const { code } = useParams<{ code: string }>();
   const [currentMonth, setCurrentMonth] = useState(() => new Date());
   const { events, loading, error } = useDisplayCalendar(code, currentMonth);
+  const { tasks, loading: tasksLoading, error: tasksError, refetch: refetchTasks } = useDisplayTasks(code);
 
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
@@ -89,7 +91,12 @@ const DisplayView = () => {
         <TideWidget />
         <TodayEventsWidget events={events} loading={loading} />
         <div className="flex-1 min-h-0">
-          <TodoWidget isAuthenticated={false} />
+          <DisplayTodoWidget 
+            tasks={tasks} 
+            loading={tasksLoading} 
+            error={tasksError} 
+            onRefresh={refetchTasks} 
+          />
         </div>
       </div>
 
