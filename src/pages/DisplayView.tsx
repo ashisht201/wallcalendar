@@ -4,6 +4,10 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval, startOfWeek, endOf
 import { ChevronLeft, ChevronRight, Loader2, AlertCircle, ArrowLeft } from 'lucide-react';
 import { useDisplayCalendar } from '@/hooks/useDisplayCalendar';
 import ClockWidget from '@/components/ClockWidget';
+import WeatherWidget from '@/components/WeatherWidget';
+import TideWidget from '@/components/TideWidget';
+import TodayEventsWidget from '@/components/TodayEventsWidget';
+import TodoWidget from '@/components/TodoWidget';
 
 const eventColors = [
   'bg-blue-500',
@@ -77,109 +81,115 @@ const DisplayView = () => {
   }
 
   return (
-    <div className="w-screen h-screen bg-background p-4 flex flex-col overflow-hidden">
-      {/* Header with clock */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="w-48">
-          <ClockWidget compact />
-        </div>
-        
-        {/* Month navigation */}
-        <div className="flex items-center gap-4">
-          <button
-            onClick={prevMonth}
-            className="p-2 rounded-lg hover:bg-secondary transition-colors"
-          >
-            <ChevronLeft className="w-6 h-6" />
-          </button>
-          <h1 className="text-3xl font-bold min-w-[280px] text-center">
-            {format(currentMonth, 'MMMM yyyy')}
-          </h1>
-          <button
-            onClick={nextMonth}
-            className="p-2 rounded-lg hover:bg-secondary transition-colors"
-          >
-            <ChevronRight className="w-6 h-6" />
-          </button>
-        </div>
-
-        {/* Status indicator */}
-        <div className="w-48 flex justify-end">
-          {loading && (
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Loader2 className="w-4 h-4 animate-spin" />
-              <span className="text-sm">Syncing...</span>
-            </div>
-          )}
+    <div className="w-screen h-screen bg-background p-4 flex overflow-hidden">
+      {/* Left sidebar with widgets */}
+      <div className="w-[320px] flex flex-col gap-4 mr-4 flex-shrink-0">
+        <ClockWidget />
+        <WeatherWidget />
+        <TideWidget />
+        <TodayEventsWidget events={events} loading={loading} />
+        <div className="flex-1 min-h-0">
+          <TodoWidget isAuthenticated={false} />
         </div>
       </div>
 
-      {/* Calendar grid */}
-      <div className="flex-1 glass-card overflow-hidden flex flex-col">
-        {/* Weekday headers */}
-        <div className="grid grid-cols-7 border-b border-border">
-          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-            <div
-              key={day}
-              className="text-center py-3 text-sm font-medium text-muted-foreground"
+      {/* Main calendar area */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          {/* Month navigation */}
+          <div className="flex items-center gap-4">
+            <button
+              onClick={prevMonth}
+              className="p-2 rounded-lg hover:bg-secondary transition-colors"
             >
-              {day}
-            </div>
-          ))}
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+            <h1 className="text-3xl font-bold min-w-[280px] text-center">
+              {format(currentMonth, 'MMMM yyyy')}
+            </h1>
+            <button
+              onClick={nextMonth}
+              className="p-2 rounded-lg hover:bg-secondary transition-colors"
+            >
+              <ChevronRight className="w-6 h-6" />
+            </button>
+          </div>
+
+          {/* Status indicator */}
+          <div className="flex items-center gap-4">
+            {loading && (
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span className="text-sm">Syncing...</span>
+              </div>
+            )}
+            <span className="text-xs text-muted-foreground font-mono">{code}</span>
+          </div>
         </div>
 
-        {/* Calendar body */}
-        <div className="flex-1 flex flex-col">
-          {weeks.map((week, weekIndex) => (
-            <div key={weekIndex} className="grid grid-cols-7 flex-1 min-h-0">
-              {week.map((day) => {
-                const dayEvents = getEventsForDay(day);
-                const inMonth = isSameMonth(day, currentMonth);
-                const today = isToday(day);
+        {/* Calendar grid */}
+        <div className="flex-1 glass-card overflow-hidden flex flex-col">
+          {/* Weekday headers */}
+          <div className="grid grid-cols-7 border-b border-border">
+            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+              <div
+                key={day}
+                className="text-center py-3 text-sm font-medium text-muted-foreground"
+              >
+                {day}
+              </div>
+            ))}
+          </div>
 
-                return (
-                  <div
-                    key={day.toISOString()}
-                    className={`border-r border-b border-border/30 p-2 flex flex-col overflow-hidden ${
-                      today ? 'bg-primary/10' : ''
-                    } ${!inMonth ? 'opacity-30' : ''}`}
-                  >
-                    <span
-                      className={`text-sm font-medium mb-1 ${
-                        today
-                          ? 'bg-primary text-primary-foreground rounded-full w-7 h-7 flex items-center justify-center'
-                          : 'text-muted-foreground'
-                      }`}
+          {/* Calendar body */}
+          <div className="flex-1 flex flex-col">
+            {weeks.map((week, weekIndex) => (
+              <div key={weekIndex} className="grid grid-cols-7 flex-1 min-h-0">
+                {week.map((day) => {
+                  const dayEvents = getEventsForDay(day);
+                  const inMonth = isSameMonth(day, currentMonth);
+                  const today = isToday(day);
+
+                  return (
+                    <div
+                      key={day.toISOString()}
+                      className={`border-r border-b border-border/30 p-2 flex flex-col overflow-hidden ${
+                        today ? 'bg-primary/10' : ''
+                      } ${!inMonth ? 'opacity-30' : ''}`}
                     >
-                      {format(day, 'd')}
-                    </span>
-                    <div className="flex-1 overflow-hidden space-y-0.5">
-                      {dayEvents.slice(0, 4).map((event) => (
-                        <div
-                          key={event.id}
-                          className={`text-xs px-2 py-1 rounded-md truncate text-white ${getEventColor(event.id)}`}
-                          title={event.title}
-                        >
-                          {event.title}
-                        </div>
-                      ))}
-                      {dayEvents.length > 4 && (
-                        <div className="text-xs text-muted-foreground px-2">
-                          +{dayEvents.length - 4} more
-                        </div>
-                      )}
+                      <span
+                        className={`text-sm font-medium mb-1 ${
+                          today
+                            ? 'bg-primary text-primary-foreground rounded-full w-7 h-7 flex items-center justify-center'
+                            : 'text-muted-foreground'
+                        }`}
+                      >
+                        {format(day, 'd')}
+                      </span>
+                      <div className="flex-1 overflow-hidden space-y-0.5">
+                        {dayEvents.slice(0, 4).map((event) => (
+                          <div
+                            key={event.id}
+                            className={`text-xs px-2 py-1 rounded-md truncate text-white ${getEventColor(event.id)}`}
+                            title={event.title}
+                          >
+                            {event.title}
+                          </div>
+                        ))}
+                        {dayEvents.length > 4 && (
+                          <div className="text-xs text-muted-foreground px-2">
+                            +{dayEvents.length - 4} more
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          ))}
+                  );
+                })}
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
-
-      {/* Footer */}
-      <div className="text-center py-2 text-xs text-muted-foreground">
-        Display Code: <span className="font-mono">{code}</span> • Auto-refreshes every 5 minutes
       </div>
     </div>
   );
