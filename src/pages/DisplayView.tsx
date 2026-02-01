@@ -129,9 +129,9 @@ const DisplayView = () => {
         </div>
 
         {/* Calendar body */}
-        <div className="flex-1 grid grid-rows-[repeat(auto-fill,minmax(0,1fr))]">
+        <div className="flex-1 flex flex-col">
           {weeks.map((week, weekIndex) => (
-            <div key={weekIndex} className="grid grid-cols-7">
+            <div key={weekIndex} className="grid grid-cols-7 flex-1 min-h-0">
               {week.map((day) => {
                 const dayEvents = getEventsForDay(day);
                 const inMonth = isSameMonth(day, currentMonth);
@@ -140,22 +140,24 @@ const DisplayView = () => {
                 return (
                   <div
                     key={day.toISOString()}
-                    className={`calendar-day min-h-0 ${today ? 'calendar-day-today' : ''} ${
-                      !inMonth ? 'opacity-30' : ''
-                    }`}
+                    className={`border-r border-b border-border/30 p-2 flex flex-col overflow-hidden ${
+                      today ? 'bg-primary/10' : ''
+                    } ${!inMonth ? 'opacity-30' : ''}`}
                   >
                     <span
-                      className={`calendar-day-number ${
-                        today ? 'calendar-day-number-today' : ''
+                      className={`text-sm font-medium mb-1 ${
+                        today
+                          ? 'bg-primary text-primary-foreground rounded-full w-7 h-7 flex items-center justify-center'
+                          : 'text-muted-foreground'
                       }`}
                     >
                       {format(day, 'd')}
                     </span>
-                    <div className="flex-1 w-full overflow-hidden space-y-0.5">
+                    <div className="flex-1 overflow-hidden space-y-0.5">
                       {dayEvents.slice(0, 4).map((event) => (
                         <div
                           key={event.id}
-                          className={`calendar-event text-white ${getEventColor(event.id)}`}
+                          className={`text-xs px-2 py-1 rounded-md truncate text-white ${getEventColor(event.id)}`}
                           title={event.title}
                         >
                           {event.title}
