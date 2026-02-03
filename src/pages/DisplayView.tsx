@@ -85,7 +85,7 @@ const DisplayView = () => {
   return (
     <div className="w-screen h-screen bg-background p-4 flex overflow-hidden">
       {/* Left sidebar with widgets */}
-      <div className="w-[320px] flex flex-col gap-4 mr-4 flex-shrink-0">
+      <div className="w-[20%] flex flex-col gap-4 mr-4 flex-shrink-0">
         <ClockWidget />
         <WeatherWidget />
         <TideWidget />
