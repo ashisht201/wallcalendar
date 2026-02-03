@@ -43,10 +43,10 @@ const DisplayTodoWidget = ({ tasks, loading, error, onRefresh }: DisplayTodoWidg
             {incompleteTasks.map(task => (
               <div
                 key={task.id}
-                className="todo-item"
+                className="todo-item py-1"
               >
-                <Circle className="w-5 h-5 text-muted-foreground flex-shrink-0" />
-                <span className="text-foreground">{task.title}</span>
+                <Circle className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                <span className="text-foreground text-xs">{task.title}</span>
               </div>
             ))}
             
@@ -58,10 +58,10 @@ const DisplayTodoWidget = ({ tasks, loading, error, onRefresh }: DisplayTodoWidg
                 {completedTasks.map(task => (
                   <div
                     key={task.id}
-                    className="todo-item opacity-50"
+                    className="todo-item py-1 opacity-50"
                   >
-                    <Check className="w-5 h-5 text-primary flex-shrink-0" />
-                    <span className="text-muted-foreground line-through">{task.title}</span>
+                    <Check className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+                    <span className="text-muted-foreground text-xs line-through">{task.title}</span>
                   </div>
                 ))}
               </>
