@@ -95,6 +95,17 @@ const DisplayView = () => {
     return eventColorMap.get(eventId) || eventColors[0];
   };
 
+  // Find which months are visible for the header
+  const visibleMonths = useMemo(() => {
+    const months = new Set<string>();
+    weeks.forEach(week => {
+      week.forEach(day => {
+        months.add(format(day, 'MMMM yyyy'));
+      });
+    });
+    return Array.from(months);
+  }, [weeks]);
+
   if (error) {
     return (
       <div className="w-screen min-h-screen bg-background flex items-center justify-center p-4">
@@ -113,17 +124,6 @@ const DisplayView = () => {
       </div>
     );
   }
-
-  // Find which months are visible for the header
-  const visibleMonths = useMemo(() => {
-    const months = new Set<string>();
-    weeks.forEach(week => {
-      week.forEach(day => {
-        months.add(format(day, 'MMMM yyyy'));
-      });
-    });
-    return Array.from(months);
-  }, [weeks]);
 
   return (
     <div className="w-screen h-screen bg-background p-4 flex overflow-hidden">
