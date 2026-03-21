@@ -12,7 +12,7 @@ export interface DisplayCalendarEvent {
   colorId?: string;
 }
 
-export const useDisplayCalendar = (accessCode: string | undefined, currentMonth: Date) => {
+export const useDisplayCalendar = (accessCode: string | undefined, currentMonth: Date, timeMaxOverride?: Date) => {
   const [events, setEvents] = useState<DisplayCalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -28,7 +28,7 @@ export const useDisplayCalendar = (accessCode: string | undefined, currentMonth:
 
     try {
       const monthStart = startOfMonth(currentMonth);
-      const monthEnd = endOfMonth(currentMonth);
+      const monthEnd = timeMaxOverride || endOfMonth(currentMonth);
 
       const { data, error: invokeError } = await supabase.functions.invoke('display-calendar', {
         body: {
@@ -59,7 +59,7 @@ export const useDisplayCalendar = (accessCode: string | undefined, currentMonth:
     } finally {
       setLoading(false);
     }
-  }, [accessCode, currentMonth]);
+  }, [accessCode, currentMonth, timeMaxOverride]);
 
   useEffect(() => {
     fetchEvents();
