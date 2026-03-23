@@ -27,15 +27,18 @@ const DisplayView = () => {
   const { code } = useParams<{ code: string }>();
 
   // Calculate rolling weeks: today's week is row index 1 (2nd row)
-  const today = new Date();
-  const todayWeekStart = startOfWeek(today);
-  const firstWeekStart = subWeeks(todayWeekStart, TODAY_ROW);
-  const lastWeekStart = addWeeks(firstWeekStart, TOTAL_ROWS - 1);
-  const lastWeekEnd = endOfWeek(lastWeekStart);
-
-  // We need events spanning the entire visible range
-  const rangeStart = firstWeekStart;
-  const rangeEnd = lastWeekEnd;
+const { firstWeekStart, rangeStart, rangeEnd } = useMemo(() => {
+    const today = new Date();
+    const todayWeekStart = startOfWeek(today);
+    const firstWeekStart = subWeeks(todayWeekStart, TODAY_ROW);
+    const lastWeekStart = addWeeks(firstWeekStart, TOTAL_ROWS - 1);
+    const lastWeekEnd = endOfWeek(lastWeekStart);
+    return {
+      firstWeekStart,
+      rangeStart: firstWeekStart,
+      rangeEnd: lastWeekEnd,
+    };
+  }, []);
 
   const { events, loading, error } = useDisplayCalendar(code, rangeStart, rangeEnd);
   const { tasks, loading: tasksLoading, error: tasksError, refetch: refetchTasks } = useDisplayTasks(code);
